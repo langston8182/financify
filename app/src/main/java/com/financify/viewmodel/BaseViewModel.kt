@@ -12,14 +12,14 @@ open class BaseViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    private val _isLoading = MutableStateFlow<Boolean>(false)
+    private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     protected fun setSuccessMessage(message: String?) {
         _successMessage.value = message
     }
 
-    protected fun clearMessageSuccess() {
+    fun clearSuccessMessage() {
         _successMessage.value = null
     }
 
@@ -27,7 +27,7 @@ open class BaseViewModel : ViewModel() {
         _errorMessage.value = message
     }
 
-    protected fun clearMessageError() {
+    fun clearErrorMessage() {
         _errorMessage.value = null
     }
 

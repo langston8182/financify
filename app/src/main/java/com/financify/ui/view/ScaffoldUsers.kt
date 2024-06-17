@@ -24,6 +24,8 @@ fun ScaffoldUsers(
     val users by usersViewModel.users.collectAsState()
     val loggedUser by authViewModel.loggedUser.collectAsState()
     val errorMessage by usersViewModel.errorMessage.collectAsState()
+    val successMessage by authViewModel.successMessage.collectAsState()
+    val isLoading by usersViewModel.isLoading.collectAsState()
     Scaffold(
         topBar = {
             AppBar(
@@ -35,14 +37,17 @@ fun ScaffoldUsers(
         content = { paddingValues ->
             UsersScreen(
                 modifier = Modifier.padding(paddingValues),
-                users = users?: listOf()
+                users = users ?: listOf()
             )
             errorMessage?.let {
                 ErrorMessageScreen(
                     message = it,
-                    onDismiss = { authViewModel.clearErrorMessage() },
+                    onDismiss = { usersViewModel.clearErrorMessage() },
                     modifier = Modifier.padding(paddingValues)
                 )
+            }
+            if (isLoading) {
+                LoadingScreen(modifier = Modifier.padding(paddingValues))
             }
         }
     )

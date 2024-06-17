@@ -15,7 +15,6 @@ import com.auth0.jwt.JWT
 import com.financify.model.CLIENT_ID
 import com.financify.model.LoggedUser
 import com.financify.model.USER_POOL_ID
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,7 +40,6 @@ class AuthViewModel(context: Context) : BaseViewModel() {
         viewModelScope.launch {
             setLoading(true)
             val userFromAws = userPool.getUser(username)
-            delay(3000)
             userFromAws.getSessionInBackground(object : AuthenticationHandler {
                 override fun onSuccess(
                     userSession: CognitoUserSession?,
@@ -100,13 +98,5 @@ class AuthViewModel(context: Context) : BaseViewModel() {
             setLoading(false)
             setSuccessMessage("Vous êtes délogué avec succès")
         }
-    }
-
-    fun clearSuccessMessage() {
-        clearMessageSuccess()
-    }
-
-    fun clearErrorMessage() {
-        clearMessageError()
     }
 }
