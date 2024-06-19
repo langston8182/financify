@@ -11,19 +11,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.financify.service.TokenDataStore
 import com.financify.ui.theme.FinancifyTheme
 import com.financify.ui.view.Drawer
 import com.financify.viewmodel.AuthViewModel
+import com.financify.viewmodel.UserViewModelFactory
 import com.financify.viewmodel.UsersViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val authViewModelFactory = AuthViewModelFactory(applicationContext)
+        val authViewModelFactory = AuthViewModelFactory(applicationContext, TokenDataStore(this))
         enableEdgeToEdge()
         setContent {
             val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
             val usersViewModelFactory = UsersViewModelFactory(authViewModel)
+            val userViewModelFactory = UserViewModelFactory(authViewModel)
             FinancifyTheme {
                 val manager = LocalFocusManager.current
                 Box(
@@ -33,7 +36,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Drawer(
                         authViewModelFactory = authViewModelFactory,
-                        usersViewModelFactory = usersViewModelFactory
+                        usersViewModelFactory = usersViewModelFactory,
+                        userViewModelFactory = userViewModelFactory
                     )
                 }
             }

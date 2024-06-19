@@ -3,7 +3,6 @@ package com.financify.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.financify.model.User
 import com.financify.service.UserApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,10 +16,8 @@ class UsersViewModel(authViewModel: AuthViewModel) : BaseViewModel() {
     fun fetchUsers() {
         viewModelScope.launch {
             setLoading(true)
-            delay(3000)
             try {
                 val fetchedUsers = UserApi.api(token.value ?: "").getUsers()
-                println("Users $fetchedUsers")
                 _users.value = fetchedUsers
             } catch (ex: Exception) {
                 setLoading(false)

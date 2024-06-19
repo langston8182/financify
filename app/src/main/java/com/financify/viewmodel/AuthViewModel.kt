@@ -15,12 +15,14 @@ import com.auth0.jwt.JWT
 import com.financify.model.CLIENT_ID
 import com.financify.model.LoggedUser
 import com.financify.model.USER_POOL_ID
+import com.financify.service.TokenDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(context: Context) : BaseViewModel() {
+class AuthViewModel(context: Context, private val tokenDataStore: TokenDataStore) :
+    BaseViewModel() {
     private val _userSession = MutableStateFlow<CognitoUserSession?>(null);
 
     private val _loggedUser = MutableStateFlow<LoggedUser?>(null)
@@ -35,6 +37,29 @@ class AuthViewModel(context: Context) : BaseViewModel() {
         "",
         Regions.EU_WEST_3
     )
+
+    init {
+        viewModelScope.launch {
+            tokenDataStore.token.collect { storedToken ->
+                if (storedToken != null) {
+                    _token.value = storedToken
+                }
+            }
+        }
+        viewModelScope.launch {
+            tokenDataStore.idToken.collect { storedIdToken ->
+                if (storedIdToken != null) {
+                    val jwt = JWT.decode(storedIdToken)
+                    val givenName = jwt.getClaim("given_name").asString()
+                    val familyName = jwt.getClaim("family_name").asString()
+                    _loggedUser.value = LoggedUser(
+                        givenName ?: "",
+                        familyName ?: ""
+                    )
+                }
+            }
+        }
+    }
 
     fun authenticate(username: String, password: String) {
         viewModelScope.launch {
@@ -55,6 +80,16 @@ class AuthViewModel(context: Context) : BaseViewModel() {
                             givenName ?: "",
                             familyName ?: ""
                         )
+                    }
+                    viewModelScope.launch {
+                        userSession?.accessToken?.jwtToken?.let { token ->
+                            tokenDataStore.saveToken(token)
+                        }
+                    }
+                    viewModelScope.launch {
+                        userSession?.idToken?.jwtToken?.let { idToken ->
+                            tokenDataStore.saveIdToken(idToken)
+                        }
                     }
                     setLoading(false)
                     setSuccessMessage("Vous êtes logué avec succès")
@@ -95,6 +130,7 @@ class AuthViewModel(context: Context) : BaseViewModel() {
             _userSession.value = null
             _loggedUser.value = null
             _token.value = null
+            tokenDataStore.clearToken()
             setLoading(false)
             setSuccessMessage("Vous êtes délogué avec succès")
         }

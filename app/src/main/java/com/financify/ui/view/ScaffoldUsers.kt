@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.financify.model.User
 import com.financify.viewmodel.AuthViewModel
 import com.financify.viewmodel.UsersViewModel
 
@@ -15,7 +16,8 @@ fun ScaffoldUsers(
     usersViewModel: UsersViewModel,
     authViewModel: AuthViewModel,
     openDrawer: () -> Unit,
-    login: () -> Unit
+    login: () -> Unit,
+    selectUser: (user: User) -> Unit
 ) {
     LaunchedEffect(Unit) {
         usersViewModel.fetchUsers()
@@ -24,7 +26,6 @@ fun ScaffoldUsers(
     val users by usersViewModel.users.collectAsState()
     val loggedUser by authViewModel.loggedUser.collectAsState()
     val errorMessage by usersViewModel.errorMessage.collectAsState()
-    val successMessage by authViewModel.successMessage.collectAsState()
     val isLoading by usersViewModel.isLoading.collectAsState()
     Scaffold(
         topBar = {
@@ -35,9 +36,12 @@ fun ScaffoldUsers(
             )
         },
         content = { paddingValues ->
-            UsersScreen(
+            UserListScreen(
                 modifier = Modifier.padding(paddingValues),
-                users = users ?: listOf()
+                users = users ?: listOf(),
+                onClick = { user ->
+                    selectUser(user)
+                }
             )
             errorMessage?.let {
                 ErrorMessageScreen(

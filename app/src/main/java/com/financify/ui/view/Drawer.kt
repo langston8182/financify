@@ -13,6 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.financify.model.Screens
 import com.financify.viewmodel.AuthViewModel
+import com.financify.viewmodel.UserViewModel
+import com.financify.viewmodel.UserViewModelFactory
 import com.financify.viewmodel.UsersViewModel
 import com.financify.viewmodel.UsersViewModelFactory
 import kotlinx.coroutines.launch
@@ -20,10 +22,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun Drawer(
     authViewModelFactory: AuthViewModelFactory,
-    usersViewModelFactory: UsersViewModelFactory
+    usersViewModelFactory: UsersViewModelFactory,
+    userViewModelFactory: UserViewModelFactory
 ) {
     val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
     val usersViewModel: UsersViewModel = viewModel(factory = usersViewModelFactory)
+    val userViewModel: UserViewModel = viewModel(factory = userViewModelFactory);
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope();
@@ -69,12 +73,25 @@ fun Drawer(
             composable(route = Screens.LOGOUT.title) {
                 LogoutScreen(authViewModel = authViewModel, navController = navController)
             }
+            composable(route = Screens.USER.title) {
+                ScaffoldUserDetail(
+                    userViewModel = userViewModel,
+                    authViewModel = authViewModel,
+                    login = { navController.navigate(Screens.LOGIN.title) },
+                    openDrawer = { openDrawer() },
+                    navController = navController
+                )
+            }
             composable(route = Screens.USERS.title) {
                 ScaffoldUsers(
                     openDrawer = { openDrawer() },
                     login = { navController.navigate(Screens.LOGIN.title) },
                     authViewModel = authViewModel,
-                    usersViewModel = usersViewModel
+                    usersViewModel = usersViewModel,
+                    selectUser = { user ->
+                        userViewModel.selectUser(user)
+                        navController.navigate(Screens.USER.title)
+                    }
                 )
             }
         }

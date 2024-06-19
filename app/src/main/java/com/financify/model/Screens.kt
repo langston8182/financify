@@ -4,5 +4,6 @@ enum class Screens(val title: String) {
     WELCOME("Welcome"),
     LOGIN("Login"),
     LOGOUT("Logout"),
-    USERS("Users")
+    USERS("Users"),
+    USER("User")
 }

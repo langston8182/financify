@@ -33,9 +33,11 @@ fun DrawerMenu(authViewModel: AuthViewModel, onSelected: (Screens) -> Unit) {
                 onSelected = { onSelected(Screens.LOGIN) }
             )
         }
-        DrawerTile(
-            screens = Screens.USERS,
-            onSelected = { onSelected(Screens.USERS) }
-        )
+        if (loggedUser != null) {
+            DrawerTile(
+                screens = Screens.USERS,
+                onSelected = { onSelected(Screens.USERS) }
+            )
+        }
     }
 }
